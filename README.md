@@ -1,10 +1,17 @@
 # 🌌 Star & Haven: Sovereign Dual-Engine Foundation
 ### Universal Declarative UI (Star Language) + Natural-English Continuity Runtime (Haven Language)
-**Standard:** Open Digital Continuity Standard (ODCS-2.0.0)  
+**Standard:** Open Digital Continuity Standard (ODCS-2.0.0 GA Ratified)  
 **Author & Maintainer:** Anirudha Puthraya  
 **Organization:** [Veyra-Programming](https://github.com/Veyra-Programming)  
 **Official Portal:** [https://odcs.in/](https://odcs.in/)  
 **License:** Apache-2.0  
+**Documentation:** [Complete 235 Module Reference & Specification](docs/STAR_HAVEN_FULL_REFERENCE.md)
+
+---
+
+> [!IMPORTANT]
+> ### 📦 OFFICIAL ANNOUNCEMENT: SOVEREIGN PACKAGE MANAGERS COMING SOON!
+> The ODCS Standards Foundation officially announces that sovereign decentralized package managers for both ecosystems—**Star Package Manager (`star pkg`)** and **Haven Package Manager (`haven pkg`)**—are actively entering Phase 2 implementation. Featuring `star.toml` and `haven.toml` manifests, RFC 8785 canonical lockfiles, offline artifact caching (`~/.star/packages` & `~/.haven/pkg_cache`), and decentralized registry publishing via `odcshosting` (`https://odcshosting.in`).
 
 ---
 
