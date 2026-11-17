@@ -1,0 +1,24 @@
+# ==============================================================================
+# 🌟 Star Project Manifest — Official ODCS Portal
+# Specification: STAR_DISTRIBUTION.md · Standard: ODCS-2.0.0
+# ==============================================================================
+
+[package]
+name = "odcs-official-portal"
+version = "2.0.0"
+description = "Official Open Digital Continuity Standard (ODCS) Web Portal"
+authors = ["Anirudha Puthraya <admin@odcs.in>"]
+license = "Apache-2.0"
+homepage = "https://www.odcs.in"
+repository = "https://github.com/Veyra-Programming/open-digital-continuity-standard-"
+entry = "main.star"
+
+[build]
+target = "web"
+opt_level = 3
+wasm_output = "build/web/app.wasm"
+
+[dependencies]
+UI = "*"
+Theme = "*"
+

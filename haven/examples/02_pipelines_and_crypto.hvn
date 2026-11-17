@@ -1,0 +1,22 @@
+// Haven Language v2.0 • Example 02: Native Pipelining & Cryptography
+// Chain transformations cleanly from left to right using '|>' and '_'.
+
+define tag_genesis(clean_str):
+    give back "ODCS-GENESIS:" + clean_str
+
+define inspect_digest(digest_hex):
+    say "Sealed SHA-256 Digest: {digest_hex}"
+    give back digest_hex
+
+say "Running Native Haven Continuity Pipeline..."
+
+set sealed to "   alpha-continuum-telemetry-packet   "
+    |> trim(_)
+    |> uppercase(_)
+    |> tag_genesis(_)
+    |> seal_hash(_)
+    |> inspect_digest(_)
+
+whenever sealed is not equal to nothing:
+    say "Pipeline cryptographic verification complete!"
+

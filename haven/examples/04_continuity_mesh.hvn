@@ -1,0 +1,29 @@
+// Haven Language v2.0 • Example 04: Full ODCS Layer 1-4 Continuity Mesh
+// Combines Zero Intent Loss (ZIL), Merkle Ledger, and CRDT convergence.
+
+say "=== ODCS LAYER 4: ZERO INTENT LOSS ==="
+preserve intent "AdministerEmergencyMed" with {"patient": "PX-991", "dose": "1g"} as receipt
+say "Receipt Minted: {receipt['intent_id']} | Status: {receipt['status']}"
+say "Canonical Proof: {receipt['receipt_hash']}"
+
+say "\n=== ODCS LAYER 2: CRDT PARTITION MERGE ==="
+set hospital_a to PNCounter("clinic-alpha")
+set hospital_b to PNCounter("ambulance-beta")
+
+hospital_a.inc(12)
+hospital_b.inc(8)
+
+say "Disconnected Local Counts -> A={hospital_a.value()}, B={hospital_b.value()}"
+hospital_a.merge(hospital_b)
+say "Converged SEC Total after Merge: {hospital_a.value()}"
+
+say "\n=== ODCS LAYER 1: MERKLE CONTINUITY LEDGER ==="
+set ledger to ContinuityLedger.open("haven://mesh-odcs-2026")
+ledger.append(receipt)
+ledger.append({"event": "CRDT_CONVERGED", "total": hospital_a.value()})
+
+set check to ledger.verify_integrity()
+whenever check["is_valid"] is equal to true:
+    say "Ledger Height: {check['height']} blocks | Merkle Root: {check['merkle_root'][:20]}..."
+    say "Zero Intent Loss & 100% Ledger Integrity Verified!"
+

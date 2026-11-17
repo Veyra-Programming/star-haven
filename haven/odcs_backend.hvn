@@ -1,0 +1,411 @@
+// ==============================================================================
+// 🕊️ ODCS CONTINUITY GATEWAY — OFFICIAL HAVEN BACKEND SERVER
+// Authored in Haven (Heaven Language v2.0) Natural English Syntax
+// Architect: Anirudha Puthraya · Standard: ODCS-2.0.0
+// ==============================================================================
+
+import json
+import time
+import os
+import sys
+import threading
+import http.server
+import socketserver
+import urllib.parse
+
+set SERVER_NAME to "ODCS Haven Continuity Gateway"
+remember STANDARD as "ODCS-2.0.0"
+remember PROTOCOL_TRACK as "RFC-8785 & ODCS Layers 1-4"
+remember DEFAULT_PORT as 8000
+set START_TIME to now_ms()
+set REQUESTS_SERVED to 0
+
+say "=============================================================================="
+say "🕊️  HAVEN LANGUAGE (HEAVEN) • NATIVE ODCS BACKEND GATEWAY"
+say "   Standard: {STANDARD} | Language: Haven v2.0 Natural-English"
+say "   Architect: Anirudha Puthraya"
+say "=============================================================================="
+
+// Layer 1: Continuity Ledger Instance
+set haven_ledger to ContinuityLedger.open("haven://genesis-wal")
+set haven_crdt to PNCounter("haven-gateway-node")
+haven_crdt.inc(100)
+
+// 20-OS Release Vault Manifest (Star Language & Haven Language Dual Catalog)
+set DOWNLOADS_CATALOG to [
+    // ⭐ Star Programming Language Official Releases
+    {"platform": "star-win-setup", "target": "Star-1.2.0-Windows-x64-Setup.exe", "label": "Star Language Windows x64 Setup (.exe)", "category": "Windows", "size": "5.7 MB", "sha256": "41437e6e343fbe22ecfe3f4f1bbd0c9f1a0efc68b7538a8e1b6f5cf216a9a084"},
+    {"platform": "star-win-zip", "target": "Star-1.2.0-Windows-x64.zip", "label": "Star Language Windows x64 Portable (.zip)", "category": "Windows", "size": "240.0 KB", "sha256": "29f878ba830198de7eecff583321d2d0b57cf2a3b022aa296838a3294ba7a99f"},
+    {"platform": "star-universal-sdk", "target": "star-1.2.0-universal-sdk.tar.gz", "label": "Star Language Universal SDK (.tar.gz)", "category": "Linux", "size": "422.1 KB", "sha256": "264f4dcea42b1ac56a9082ad81b49911e3b5e43b190f845a70fe17f912e75e50"},
+    {"platform": "star-universal-zip", "target": "star-1.2.0-universal-sdk.zip", "label": "Star Language Universal SDK (.zip)", "category": "Web", "size": "465.1 KB", "sha256": "091de086e8efbd677943fcf3f7b88939c43d83965b7747e9ffb4bdf9226cfb0b"},
+    {"platform": "star-wasm-app", "target": "app.wasm", "label": "ODCS Star WebAssembly Binary (.wasm)", "category": "Web", "size": "4.9 KB", "sha256": "8c51e28fa7a38036ea2452243d4c7b8db04ba3779e9a4f4344e21a7195a6ad6e"},
+
+    // 🕊️ Haven Language Official Releases
+    {"platform": "windows", "target": "Haven-1.0.0-win64-Setup.exe", "label": "Haven Windows x64 Setup (.exe)", "category": "Windows", "size": "19.7 MB", "sha256": "b325da0b200c59caa494135966b683f94e8ad0cdfd87cdab419585122a2a32e6"},
+    {"platform": "portable", "target": "Haven-1.0.0-win64-portable.zip", "label": "Haven Windows x64 Portable (.zip)", "category": "Windows", "size": "4.5 MB", "sha256": "aae36c9e29a769167f7191f4e697bed0a4c1ac59adf258a1282744bf34711de3"},
+    {"platform": "cli", "target": "haven.exe", "label": "Haven Windows Standalone CLI (.exe)", "category": "Windows", "size": "384.5 KB", "sha256": "6040768277c8e8dd30b07fbee73fe808d707fb30212ee3d734fbf2ec2ac27de0"},
+    {"platform": "win-arm64", "target": "haven-1.0.0-win-arm64.zip", "label": "Haven Windows ARM64 (.zip)", "category": "Windows", "size": "87.8 KB", "sha256": "d8b2aa34aa7187e040797e3a0e433fb4ef8fc74becdc20ea9fee842dd63bab90"},
+    {"platform": "transpiler", "target": "haven_lang.py", "label": "Haven v2.0 Natural-English CLI (.py)", "category": "Web", "size": "27.7 KB", "sha256": "dd3236cf0d2e1bfc39469f3dfdf60714d5cfabc82c8e359cee5a5f25c61dd0ab"},
+    {"platform": "linux", "target": "haven-1.0.0-linux-x86_64.tar.gz", "label": "Haven Linux x86_64 Tarball (.tar.gz)", "category": "Linux", "size": "72.8 KB", "sha256": "8cf6a540bffb6e895a6e05d718c65d0644b0492a75f2a46fea6d11f89bf82a01"},
+    {"platform": "appimage", "target": "haven-1.0.0-x86_64.AppImage", "label": "Haven Linux Universal AppImage", "category": "Linux", "size": "72.6 KB", "sha256": "316f3d0cc901b4512db0ae0a9fe0023755d585e98df660b31e12f544639d4323"},
+    {"platform": "deb", "target": "haven_1.0.0_amd64.deb", "label": "Haven Debian / Ubuntu AMD64 (.deb)", "category": "Linux", "size": "73.5 KB", "sha256": "fe19d90149eeda01813b64cf29e32b02b9d0f135fbdb2b594e7886fbd892da1b"},
+    {"platform": "ubuntu-vps", "target": "odcs-vps-bundle-ubuntu.tar.gz", "label": "ODCS Ubuntu VPS Bundle (Star + Haven)", "category": "Linux", "size": "3.5 MB", "sha256": "f1e241f513236147..."},
+    {"platform": "rpm", "target": "haven-1.0.0-1.x86_64.rpm", "label": "Haven Fedora / RHEL x86_64 (.rpm)", "category": "Linux", "size": "70.1 KB", "sha256": "632730a0a9abaa9b72e3c37e9eac53456b264395c69a961ed1573e64e5f0ac6c"},
+    {"platform": "macos", "target": "Haven-1.0.0-macOS-Universal.dmg", "label": "Haven macOS Universal (.dmg)", "category": "Apple", "size": "88.2 KB", "sha256": "a94897544bac05970f25ecc43ab8bddb3dcb6c3ad36827b1f4f5c5c7c8169872"},
+    {"platform": "android", "target": "haven-1.0.0-r0.apk", "label": "Haven Android Runtime Package (.apk)", "category": "Mobile", "size": "71.2 KB", "sha256": "4c318c2a916df8abc1174e41053a2ba462c8c7d4ed9bceca8073e71cbe1a8d22"},
+    {"platform": "freebsd", "target": "haven-1.0.0-freebsd-x86_64.tar.xz", "label": "Haven FreeBSD x86_64 (.tar.xz)", "category": "BSD", "size": "61.6 KB", "sha256": "3151775e9754c97dc2cf96ff14d8ab3564f29945633bc2b5ab52b764f4412c86"},
+    {"platform": "wasm", "target": "haven-runtime.wasm", "label": "Haven WebAssembly Continuity Sandbox (.wasm)", "category": "Web", "size": "258 B", "sha256": "66395a581cf1f821e72005c3f4304b6aa5d8165ac7d5eafc6694e89cfe2825a0"},
+
+    // ⚡ PowerShell Automated 1-Liner Installer
+    {"platform": "powershell", "target": "install.ps1", "label": "Windows PowerShell Dual-Engine Installer (.ps1)", "category": "Windows", "size": "11.6 KB", "sha256": "9a40b35e352bce3e4b7720d20d755ae4fc9110023a1050a41f649bf557bf85fa"},
+
+    // 🐍 Official Python SDK (Star + Haven Dual Engine)
+    {"platform": "python-whl", "target": "odcs_sdk-2.0.0-py3-none-any.whl", "label": "ODCS Python SDK Wheel Package (.whl)", "category": "Python", "size": "8.9 KB", "sha256": "1c1bdb275884dbc11e721752dd7a39ff18aeb50c90d0b0b8c4c7b80a138c2057"},
+    {"platform": "python-sdist", "target": "odcs_sdk-2.0.0.tar.gz", "label": "ODCS Python SDK Source Archive (.tar.gz)", "category": "Python", "size": "24.0 KB", "sha256": "eea59c41805b92570081d58cf09f27ddc52e463a5bf259cf3d2c88f3438885c6"}
+]
+
+// Base Request Handler for Haven Backend
+class HavenRequestHandler(http.server.SimpleHTTPRequestHandler):
+
+    define end_headers(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-Admin-PIN")
+        self.send_header("X-ODCS-Standard", STANDARD)
+        self.send_header("X-Powered-By", "Haven Language v2.0")
+        super().end_headers()
+
+    define do_OPTIONS(self):
+        self.send_response(204)
+        self.end_headers()
+
+    define do_HEAD(self):
+        self.do_GET()
+
+    define do_GET(self):
+        global REQUESTS_SERVED
+        REQUESTS_SERVED += 1
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+
+        // Route: /healthz
+        whenever path is equal to "/healthz":
+            uptime = (now_ms() - START_TIME) / 1000.0
+            data = {
+                "status": "HEALTHY",
+                "standard": STANDARD,
+                "engine": "Haven Language v2.0 (Heaven VM)",
+                "author": "Anirudha Puthraya",
+                "colo": "BOM-HAVEN-NATIVE",
+                "uptime_seconds": round(uptime, 2),
+                "requests_served": REQUESTS_SERVED,
+                "merkle_height": haven_ledger.current_height(),
+                "crdt_value": haven_crdt.value()
+            }
+            self.send_json_response(200, data)
+            give back
+
+        // Route: /api/v1/telemetry/probe
+        whenever path is equal to "/api/v1/telemetry/probe":
+            telemetry = {
+                "status": "ONLINE",
+                "standard": STANDARD,
+                "engine": "Haven Native VM",
+                "telemetry": {
+                    "mode": "OPTIMAL_ONLINE",
+                    "mode_code": 1,
+                    "rtt_ms": 0.04,
+                    "jitter_ratio": 0.0,
+                    "packet_loss": 0.0
+                },
+                "edge": {
+                    "colo": "BLR-HAVEN-EDGE",
+                    "timestamp": now_ms()
+                }
+            }
+            self.send_json_response(200, telemetry)
+            give back
+
+        // Route: /api/v1/detect-os (Intelligent Client OS Telemetry Sensing)
+        whenever path is equal to "/api/v1/detect-os":
+            user_agent = self.headers.get("User-Agent", "").lower()
+            ch_platform = self.headers.get("Sec-CH-UA-Platform", "").strip('"').lower()
+
+            detected = "Windows"
+            arch = "x64"
+            star_pkg = "Star-1.2.0-Windows-x64-Setup.exe"
+            haven_pkg = "Haven-1.0.0-win64-Setup.exe"
+
+            whenever "android" in user_agent or ch_platform is equal to "android":
+                detected = "Android"
+                arch = "arm64"
+                star_pkg = "app.wasm"
+                haven_pkg = "haven-1.0.0-r0.apk"
+            otherwise if "mac" in user_agent or "darwin" in user_agent or ch_platform is equal to "macos":
+                detected = "macOS"
+                arch = "Universal"
+                star_pkg = "star-1.2.0-universal-sdk.tar.gz"
+                haven_pkg = "Haven-1.0.0-macOS-Universal.dmg"
+            otherwise if "linux" in user_agent or ch_platform is equal to "linux":
+                detected = "Linux"
+                arch = "x86_64"
+                star_pkg = "star-1.2.0-universal-sdk.tar.gz"
+                haven_pkg = "haven_1.0.0_amd64.deb"
+            otherwise if "arm" in user_agent:
+                arch = "arm64"
+                haven_pkg = "haven-1.0.0-win-arm64.zip"
+
+            payload = {
+                "detected_os": detected,
+                "architecture": arch,
+                "recommended_star": star_pkg,
+                "recommended_haven": haven_pkg,
+                "confidence": "HIGH",
+                "timestamp_ms": now_ms()
+            }
+            self.send_json_response(200, payload)
+            give back
+
+        // Route: /api/v1/downloads
+        whenever path is equal to "/api/v1/downloads":
+            payload = {
+                "standard": STANDARD,
+                "engine": "Haven Release Vault",
+                "total_platforms": len(DOWNLOADS_CATALOG),
+                "downloads": DOWNLOADS_CATALOG
+            }
+            self.send_json_response(200, payload)
+            give back
+
+        // Route: /metrics (Prometheus Format)
+        whenever path is equal to "/metrics":
+            uptime = (now_ms() - START_TIME) / 1000.0
+            metrics_text = f"""# HELP odcs_requests_total Total requests processed by Haven backend
+# TYPE odcs_requests_total counter
+odcs_requests_total {REQUESTS_SERVED}
+# HELP odcs_uptime_seconds Haven backend uptime in seconds
+# TYPE odcs_uptime_seconds gauge
+odcs_uptime_seconds {uptime}
+# HELP odcs_merkle_height Current height of Haven WAL Merkle DAG
+# TYPE odcs_merkle_height gauge
+odcs_merkle_height {haven_ledger.current_height()}
+# HELP odcs_crdt_pn_counter Active converged value of PN-Counter
+# TYPE odcs_crdt_pn_counter gauge
+odcs_crdt_pn_counter {haven_crdt.value()}
+"""
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(metrics_text.encode("utf-8"))
+            give back
+
+        // Route: GET /install.ps1 (PowerShell 1-Liner Quick Installer)
+        whenever path is equal to "/install.ps1":
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            root_dir = os.path.dirname(script_dir) if os.path.basename(script_dir) == "heaven" else script_dir
+            ps1_target = os.path.join(root_dir, "install.ps1")
+            whenever not os.path.exists(ps1_target):
+                ps1_target = os.path.join(root_dir, "build", "web", "install.ps1")
+            whenever os.path.exists(ps1_target):
+                with open(ps1_target, "rb") as fh:
+                    ps1_content = fh.read()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.send_header("Content-Length", str(len(ps1_content)))
+                self.end_headers()
+                self.wfile.write(ps1_content)
+                give back
+
+        // Route: /api/v1/events (SSE Stream)
+        whenever path is equal to "/api/v1/events":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "keep-alive")
+            self.end_headers()
+            heartbeat = f"data: {{\"event\":\"connected\",\"engine\":\"Haven v2.0\",\"ts\":{now_ms()}}}\n\n"
+            self.wfile.write(heartbeat.encode("utf-8"))
+            self.wfile.flush()
+            give back
+
+        // Real Download Dispatcher (/downloads/<file> or /api/v1/downloads/file/<file>)
+        whenever path.startswith("/downloads/") or path.startswith("/api/v1/downloads/file/"):
+            raw_target = path.replace("/api/v1/downloads/file/", "").replace("/downloads/", "").strip("/")
+            filename = os.path.basename(raw_target)
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            root_dir = os.path.dirname(script_dir) if os.path.basename(script_dir) == "heaven" else script_dir
+            candidate_dirs = [
+                os.path.join(script_dir, "downloads"),
+                os.path.join(root_dir, "heaven", "downloads"),
+                os.path.join(root_dir, "build", "web", "downloads"),
+                os.path.join(root_dir, "vps", "dist"),
+                os.path.join(root_dir, "build", "web")
+            ]
+            for c_dir in candidate_dirs:
+                file_target = os.path.join(c_dir, filename)
+                whenever os.path.exists(file_target) and not os.path.isdir(file_target):
+                    self.serve_download_attachment(file_target, filename)
+                    give back
+            self.send_json_response(404, {"error": "Download artifact not found", "target": filename})
+            give back
+
+        // Static File Handling: Serve Star WebAssembly UI from build/web/
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        root_dir = os.path.dirname(script_dir) if os.path.basename(script_dir) == "heaven" else script_dir
+        build_web_path = os.path.join(root_dir, "build", "web")
+        whenever not os.path.exists(build_web_path):
+            build_web_path = os.path.join(os.getcwd(), "build", "web")
+
+        whenever os.path.exists(build_web_path):
+            rel_path = path.lstrip("/")
+            whenever rel_path is equal to "":
+                rel_path = "index.html"
+            target_file = os.path.join(build_web_path, rel_path)
+            whenever os.path.exists(target_file) and not os.path.isdir(target_file):
+                self.serve_static_file(target_file)
+                give back
+
+        // Fallback: 404 Not Found
+        self.send_json_response(404, {"error": "Not Found", "path": path, "engine": "Haven v2.0"})
+
+    define do_POST(self):
+        global REQUESTS_SERVED
+        REQUESTS_SERVED += 1
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+
+        content_length = int(self.headers.get("Content-Length", 0))
+        body_bytes = self.rfile.read(content_length) if content_length > 0 else b"{}"
+        try:
+            body = json.loads(body_bytes.decode("utf-8"))
+        except Exception:
+            body = {}
+
+        // Route: POST /api/v1/intent/preserve (Zero Intent Loss)
+        whenever path is equal to "/api/v1/intent/preserve":
+            action = body.get("action", "USER_INTENT")
+            payload = body.get("payload", {})
+            receipt = ZeroIntentLoss.preserve(action, payload, actor="haven-api-client")
+            block = haven_ledger.append({"intent": receipt["intent_id"], "receipt_hash": receipt["receipt_hash"]})
+            receipt["merkle_block"] = block["height"]
+            receipt["merkle_root"] = haven_ledger.merkle_root()
+            self.send_json_response(201, receipt)
+            give back
+
+        // Route: POST /api/v1/sync (Layer 2 CRDT Sync)
+        whenever path is equal to "/api/v1/sync":
+            haven_crdt.inc(1)
+            remote_clock = body.get("vector_clock", {})
+            converged = {
+                "standard": STANDARD,
+                "status": "CONVERGED_SEC",
+                "engine": "Haven CRDT Engine",
+                "converged_counters": {"global_network_tx": haven_crdt.value()},
+                "receipt_hash": seal_hash(remote_clock),
+                "timestamp_ms": now_ms()
+            }
+            self.send_json_response(200, converged)
+            give back
+
+        // Route: POST /api/v1/admin/broadcast
+        whenever path is equal to "/api/v1/admin/broadcast":
+            msg = body.get("message", "Cluster broadcast")
+            say "📡 Haven Broadcast Dispatched: {msg}"
+            self.send_json_response(200, {"status": "BROADCAST_SENT", "message": msg, "engine": "Haven v2.0"})
+            give back
+
+        self.send_json_response(404, {"error": "Endpoint not found", "path": path})
+
+    define send_json_response(self, code, data):
+        payload_bytes = json.dumps(data, indent=2).encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(payload_bytes)))
+        self.end_headers()
+        whenever self.command is not equal to "HEAD":
+            self.wfile.write(payload_bytes)
+
+    define serve_static_file(self, filepath):
+        ext = os.path.splitext(filepath)[1].lower()
+        mime_types = {
+            ".html": "text/html; charset=utf-8",
+            ".js": "application/javascript; charset=utf-8",
+            ".css": "text/css; charset=utf-8",
+            ".wasm": "application/wasm",
+            ".json": "application/json; charset=utf-8",
+            ".svg": "image/svg+xml"
+        }
+        content_type = mime_types.get(ext, "application/octet-stream")
+        with open(filepath, "rb") as fh:
+            data = fh.read()
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        whenever self.command is not equal to "HEAD":
+            self.wfile.write(data)
+
+    define serve_download_attachment(self, filepath, filename):
+        file_size = os.path.getsize(filepath)
+        ext = os.path.splitext(filename)[1].lower()
+        mime_types = {
+            ".exe": "application/x-msdownload",
+            ".msi": "application/x-msi",
+            ".zip": "application/zip",
+            ".tar.gz": "application/gzip",
+            ".deb": "application/vnd.debian.binary-package",
+            ".rpm": "application/x-rpm",
+            ".dmg": "application/x-apple-diskimage",
+            ".apk": "application/vnd.android.package-archive",
+            ".wasm": "application/wasm",
+            ".AppImage": "application/x-executable",
+            ".tar.xz": "application/x-xz",
+            ".pkg.tar.zst": "application/zstd",
+            ".json": "application/json; charset=utf-8",
+            ".py": "text/x-python; charset=utf-8",
+            ".ps1": "text/plain; charset=utf-8",
+            ".whl": "application/zip",
+            ".txt": "text/plain; charset=utf-8",
+            ".md": "text/markdown; charset=utf-8"
+        }
+        content_type = mime_types.get(ext, "application/octet-stream")
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+        self.send_header("Content-Length", str(file_size))
+        self.send_header("Cache-Control", "public, max-age=86400")
+        self.end_headers()
+        whenever self.command is not equal to "HEAD":
+            with open(filepath, "rb") as fh:
+                while True:
+                    chunk = fh.read(65536)
+                    whenever not chunk:
+                        break
+                    self.wfile.write(chunk)
+
+
+// Multi-threaded HTTP Server
+class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
+    daemon_threads = True
+    allow_reuse_address = True
+
+
+define start_server(port=8000):
+    server = ThreadedHTTPServer(("0.0.0.0", port), HavenRequestHandler)
+    say "✓ Haven Backend listening on http://0.0.0.0:{port} [Active]"
+    say "  Endpoints:"
+    say "  • http://localhost:{port}/healthz"
+    say "  • http://localhost:{port}/api/v1/telemetry/probe"
+    say "  • http://localhost:{port}/api/v1/downloads"
+    say "  • http://localhost:{port}/metrics"
+    server.serve_forever()
+
+
+set target_port to DEFAULT_PORT
+whenever len(sys.argv) is greater than 1:
+    try:
+        set target_port to int(sys.argv[1])
+    except Exception:
+        pass
+
+start_server(target_port)

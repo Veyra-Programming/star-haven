@@ -1,0 +1,22 @@
+// Haven Language v2.0 • Example 01: Natural English Core
+// Write resilient programs cleanly like everyday English.
+
+set system_name to "ODCS Continuity Node"
+set replica_count to 4
+set latency_ms to 12.5
+remember region as "Bengaluru-Edge"
+
+say "Booting {system_name} in region {region}..."
+
+repeat replica_count times:
+    set node_id to "NODE-" + String(iteration)
+    say "Synchronizing replica {node_id} [OK]"
+
+increase replica_count by 2
+say "Scaled active cluster to {replica_count} replicas."
+
+unless latency_ms is greater than 20.0:
+    say "Latency status: OPTIMAL ({latency_ms}ms < 20ms)"
+otherwise:
+    say "Warning: Latency boundary exceeded!"
+

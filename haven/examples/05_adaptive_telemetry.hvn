@@ -1,0 +1,20 @@
+// Haven Language v2.0 • Example 05: Layer 3 Adaptive Telemetry Policies
+// Evaluate environmental network conditions with clean English logic.
+
+set telemetry_samples to [
+    {"name": "Fiber Backhaul", "rtt": 4, "battery": 98},
+    {"name": "Rural 4G Jitter", "rtt": 480, "battery": 42},
+    {"name": "Mountain Tunnel Blackout", "rtt": -1, "battery": 12}
+]
+
+for each sample in telemetry_samples:
+    set mode to TelemetryProbe.classify(sample["rtt"], sample["battery"])
+    say "Link: {sample['name']} -> Mode: {mode}"
+
+    whenever mode is equal to "AIRGAP_OFFLINE":
+        say "  -> Policy: Staging all mutations to local WAL outbox."
+    otherwise if mode is equal to "CONSTRAINED_JITTER":
+        say "  -> Policy: Compressing CRDT delta frames & throttling heartbeat."
+    otherwise:
+        say "  -> Policy: Streaming real-time Merkle sync."
+

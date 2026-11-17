@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Build artifacts & Binaries
+build/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+*.apk
+*.deb
+*.rpm
+*.dmg
+*.tar.gz
+*.zip
+*.wasm.map
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs & temp
+*.log
+temp_test/

@@ -1,0 +1,25 @@
+// Haven Language v2.0 • Example 03: Durable Immutable Records
+// Hardware-style immutability & automatic canonical SHA-256 hashing.
+
+durable record ContinuityPacket:
+    tx_id: String
+    guardian: String
+    block_height: Integer
+    status: String = "SEALED"
+
+let packet = ContinuityPacket(
+    tx_id: "TX-9902-ODCS",
+    guardian: "guardian://BLR-node-01.odcs.in",
+    block_height: 1048576
+)
+
+say "Packet Sealed: {packet.tx_id} ({packet.status})"
+say "Cryptographic Hash: {packet.odcs_hash()}"
+
+// Attempt mutation to prove Layer 1 immutability enforcement
+try:
+    packet.block_height = 999999
+on error as err:
+    say "Immutability Trap Triggered: {err}"
+    say "Durable record integrity remains 100% intact."
+
